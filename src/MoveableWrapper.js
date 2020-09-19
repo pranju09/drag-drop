@@ -2,12 +2,14 @@ import React, { useEffect,useState } from "react";
 import Moveable from "react-moveable";
 import { Frame } from "scenejs";
 const MoveableWrapper= ({refName,moveableRef,colsWidth,colsHeight}) => {
+    let sw,ew,aw;
+    console.log("var reg ")
     const [frame] = React.useState({
         translate: [0, 0],
         rotate: 0
     });
     const [targetElem, setTargetElem] = useState();
-    
+  
     useEffect(() => {
         const target = document.querySelector(`.${refName}`);
         setTargetElem(target);
@@ -17,7 +19,14 @@ const MoveableWrapper= ({refName,moveableRef,colsWidth,colsHeight}) => {
             }, 2000);
           });
     }, [refName,moveableRef]);
-
+    const getBlockMultiplier = (diff, dir)=> {
+      const fStep = dir === 1 ? 46+24 : 46; // (w/2)+gw : w/2
+      diff = Math.abs(diff);
+      if(diff<fStep) return 0;
+      diff = diff - fStep;
+      var pos = diff/116;
+      return Math.ceil(pos)*dir;
+    } 
     return (
         <Moveable
         // ref={moveableRef}
@@ -29,24 +38,49 @@ const MoveableWrapper= ({refName,moveableRef,colsWidth,colsHeight}) => {
         rotatable={true}
         rotationPosition={"top"}
         throttleRotate={0}
-        onDrag={({ target,left,top }) => {
-          let newTop = Math.round(top / colsHeight) * colsHeight, newLeft = Math.round(left / colsWidth) * colsWidth;
-          console.log({top,newTop,div : top / colsHeight,colsHeight,left,newLeft,colsWidth})
-
+        onDragStart={({ set , target,width }) => {
+          set(frame.translate);
+          sw = target.style.width;
+        }} 
+        onDrag={({target,left, top,beforeRotate}) => {
+            let newTop = Math.round(top / colsHeight) * colsHeight, newLeft = Math.round(left / colsWidth) * colsWidth;
             target.style.top = newTop+"px";
             target.style.left = newLeft+"px";
-            // target.style.top = `${top}px`;
-            // target.style.left = `${left}px`;
         }}
+        onDragEnd={({target,width})=>{
+          ew = target.style.width;
+          const diff = ew-sw;
+          if(diff>0) {
+            const multiplier = getBlockMultiplier(diff);
+            target.style.width  = sw + (colsWidth+24)*multiplier;
+          }
+        }}
+        onResizeStart={(e) => {
+          sw = e.clientX ;
+          aw = e.target.getBoundingClientRect().width - 2;
+          aw = Math.floor((aw+24)/116); //  To get occupied boxes 
+          console.log({startBlockSize : aw,sw});
+        }} 
         onResize={({ target, width, height, drag }) => {
-          // target.style.width = `${width}px`;
-          // target.style.height = `${height}px`;
           const beforeTranslate = drag.beforeTranslate;
             
           frame.translate = beforeTranslate;
           target.style.width = `${width}px`;
           target.style.height = `${height}px`;
           target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
+        }}
+        onResizeEnd={(e)=>{
+          let multiplier;
+          ew = e.clientX;
+          const diff = ew-sw;
+          console.log({ew,sw,diff})
+          if(diff>0) {
+            multiplier = getBlockMultiplier(diff,1);
+          }else{
+            multiplier = getBlockMultiplier(diff,-1);
+          }
+          e.target.style.width  = ((aw + multiplier)*116)-26+"px";
+          console.log({ ew, diffBlockSize : multiplier});
         }}
         onRotate={({ target,left,top,beforeRotate }) => {
             frame.rotate = beforeRotate;
@@ -57,5 +91,4 @@ const MoveableWrapper= ({refName,moveableRef,colsWidth,colsHeight}) => {
     );
 }
 
-export default MoveableWrapper;
-
+export default React.memo(MoveableWrapper);

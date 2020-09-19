@@ -12,46 +12,6 @@ body,
   background: #f5f5f5;
   font-weight: 300;
 }
-*{
-  margin: 0;
-  padding: 0;
-}
-
-.container {
-  position: relative;
-  /* width: 90%; */
-  height: 500px;
-
-  margin:auto;
-  background: lightskyblue;
-  z-index : 8;
-}
-
-/* Svg grid style */
-.grid-tiles__svg{
-  position: absolute;
-  top: 0;
-  left : 0;
-  z-index: -1;
-  height: 100%;
-  width: 100%;
-}
-.grid-tiles{
-  /* top: 0;
-  right: -1px;
-  bottom: -1px;
-  left: 0;
-  z-index: -1;
-  grid-area: 1/3/calc(var(--current-grid-height) + 1)/-3;
-  pointer-events: none;
-  -webkit-transform-origin: left;
-  transform-origin: left; */
-}
-
-.grid-tiles__pattern-inner {
-  fill: rgba(0,0,0,0.1);
-  stroke: hsla(0,0%,100%,0.35);
-}
 .moveable {
   font-family: "Roboto", sans-serif;
   position: relative;

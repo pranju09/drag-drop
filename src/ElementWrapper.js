@@ -1,11 +1,13 @@
 import React from 'react';
 import classNames from "classnames";
-const ElementWrapper = ({refName,children,selected,setTargetElement}) => {
+import { setElementStyle } from './common';
+const ElementWrapper = ({ref,refName,children,setTargetElement}) => {
     return (
     <div 
-        className={classNames("moveable",refName, {selected_movable: selected == refName})} 
+        className={classNames("hightlighter",refName)} 
         onMouseOver={()=> setTargetElement(refName)}
         onClick={()=> setTargetElement(refName)}
+        style={setElementStyle(children)}
     >
         {children}
     </div>

@@ -1,7 +1,6 @@
 import React from 'react';
 
 const Grid = ({colsWidth,gutterWidthSpace,colsHeight,gutterHeightSpace})=> {
-    console.log()
     return (
         <svg xmlns="http://www.w3.org/2000/svg" class="grid-tiles__svg">
           <defs>
