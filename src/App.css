@@ -23,14 +23,6 @@ body,
   letter-spacing: 1px;
 }
 
-/* .moveable span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-} */
-
 .description {
   text-align: center;
 }
@@ -85,7 +77,6 @@ body,
   z-index: 1;
   min-height: 700px;
 }
-
 
 .page.feature,
 .page.footer {
@@ -215,7 +206,8 @@ code.hljs {
   content: "/";
 }
 
-.heading, .image{
+.heading,
+.image {
   display: inline-block;
   position: absolute;
 }

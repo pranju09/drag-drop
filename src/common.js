@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from "react";
 
 export function useWindowSize() {
   const [size, setSize] = useState([0, 0]);
@@ -6,13 +6,11 @@ export function useWindowSize() {
     function updateSize() {
       setSize([window.innerWidth, window.innerHeight]);
     }
-    window.addEventListener('resize', updateSize);
+    window.addEventListener("resize", updateSize);
     updateSize();
-    return () => window.removeEventListener('resize', updateSize);
+    return () => window.removeEventListener("resize", updateSize);
   }, []);
   return size;
 }
 
-export function setElementStyle(e) {
-
-}
+export function setElementStyle(e) {}

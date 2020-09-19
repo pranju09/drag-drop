@@ -1,49 +1,98 @@
-import  React,{ useState, useRef, useEffect, createRef, useLayoutEffect }  from "react";
+import React, {
+  useState,
+  createRef,
+  useLayoutEffect,
+  createElement,
+} from "react";
 import MoveableWrapper from "./MoveableWrapper";
-import './App.css';
+import "./App.css";
 import Grid from "./Grid";
-import './Grid.css';
-import {useWindowSize} from "./common";
-import ElementWrapper from "./ElementWrapper";
+import "./Grid.css";
+import { useWindowSize } from "./common";
 
 const App = () => {
-  let heading = createRef(),image = createRef(),showGrids=true;
-  const [targetElement, setTargetElement] = useState(null);
+  let showGrids = true,
+    elements = [
+      {
+        id: "heading",
+        type: "text",
+        content: "Some content",
+        tag: "h1",
+        styling: {
+          top: "0px",
+          height: "50px",
+        },
+        reponsive: {},
+      },
+      {
+        id: "para",
+        type: "text",
+        content:
+          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+        tag: "p",
+        styling: {
+          top: "80px",
+        },
+        reponsive: {},
+      },
+    ];
   const containerRef = createRef();
-  const [dimensions, setDimensions] = useState({ width:0, height: 0 });
+  const [dimensions, setDimensions] = useState({});
   const [windowWidth] = useWindowSize();
 
   useLayoutEffect(() => {
     if (containerRef.current) {
       let width = containerRef.current.offsetWidth,
-      height = containerRef.current.offsetHeight,
-      newWidth  = Math.round(width/12), 
-      newHeight = Math.round((newWidth*9)/16);
+        height = containerRef.current.offsetHeight,
+        newWidth = Math.round(width / 12),
+        newHeight = Math.round((newWidth * 9) / 16);
       setDimensions({
         width: width,
         height: height,
-        colsWidth :newWidth,
-        gutterWidthSpace :newWidth - 24,
-        colsHeight : newHeight,
-        gutterHeightSpace : newHeight - 16,
+        withGutterBoxWidth: newWidth,
+        boxWidth: newWidth - 24,
+        widthGutterBoxHeight: newHeight,
+        boxHeight: newHeight - 16,
       });
     }
   }, [windowWidth]);
-  
-  const { width, height, colsWidth, gutterWidthSpace,colsHeight ,gutterHeightSpace} = dimensions;
+
+  const {
+    withGutterBoxWidth,
+    boxWidth,
+    widthGutterBoxHeight,
+    boxHeight,
+  } = dimensions;
 
   return (
     <div className="container">
       <section className="blue-section" ref={containerRef}>
-          {targetElement && <MoveableWrapper refName={targetElement && targetElement.class} moveableRef={targetElement && targetElement.ref} colsWidth={colsWidth} colsHeight={colsHeight}/>}
-            <ElementWrapper 
-              ref={heading} 
-              refName='heading' 
-              setTargetElement={(ref)=>setTargetElement({class : 'heading', ref })}>
-              <h3>I am Heading</h3>
-            </ElementWrapper>
-          <br/>
-          {/* <img ref={image}
+        {elements.map((elem, ind) => (
+          <MoveableWrapper
+            key={ind}
+            withGutterBoxWidth={withGutterBoxWidth}
+            widthGutterBoxHeight={widthGutterBoxHeight}
+            styles={{ ...elem.styling }}
+          >
+            {createElement(elem.tag, null, elem.content)}
+          </MoveableWrapper>
+        ))}
+        {showGrids && (
+          <Grid
+            withGutterBoxWidth={withGutterBoxWidth}
+            boxWidth={boxWidth}
+            widthGutterBoxHeight={widthGutterBoxHeight}
+            boxHeight={boxHeight}
+          ></Grid>
+        )}
+      </section>
+    </div>
+  );
+};
+export default App;
+
+{
+  /* <img ref={image} // absolute full height 
               onMouseOver={()=> setTargetElement({class : 'image', ref : image }) }
               onClick={()=> setTargetElement({class : 'image', ref : image }) }
               className="image" 
@@ -51,12 +100,5 @@ const App = () => {
               width="150px"
               src="/logo192.png"
               alt="target"
-          /> */}
-          {showGrids && 
-            <Grid colsWidth={colsWidth} gutterWidthSpace={gutterWidthSpace} colsHeight={colsHeight} gutterHeightSpace={gutterHeightSpace}></Grid>
-        }
-      </section>
-    </div>
-  );
+          /> */
 }
-export default App;
