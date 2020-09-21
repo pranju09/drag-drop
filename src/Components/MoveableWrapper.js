@@ -1,22 +1,20 @@
-import React, { createRef, useRef, useState } from "react";
+import React, { creat, useRef, useState } from "react";
 import Moveable from "react-moveable";
 import classNames from "classnames";
 import ElementWrapper from "./ElementWrapper";
 
 const MoveableWrapper = ({
-  refName,
+  targetElem,
   children,
   styles,
   withGutterBoxWidth,
-  widthGutterBoxHeight,
+  withGutterBoxHeight,
 }) => {
-  let sw, ew, aw;
+  let sw, ew, aw, direction;
   const [frame] = React.useState({
     translate: [0, 0],
     rotate: 0,
   });
-  const [targetElem, setTargetElement] = useState();
-  let childRefs = useRef([]);
 
   const getBlockMultiplier = (diff, dir) => {
     const fStep = dir === 1 ? 46 + 24 : 46; // (w/2)+gw : w/2
@@ -26,13 +24,12 @@ const MoveableWrapper = ({
     var pos = diff / 116;
     return Math.ceil(pos) * dir;
   };
-  console.log(childRefs);
   return (
     <>
       {targetElem && (
         <Moveable
-          ref={targetElem.ref}
-          target={targetElem.target}
+          ref={targetElem}
+          target={targetElem.current}
           draggable={true}
           throttleDrag={0}
           resizable={true}
@@ -45,18 +42,19 @@ const MoveableWrapper = ({
           }}
           onDrag={({ target, left, top, beforeRotate, currentTarget }) => {
             let newTop =
-                Math.round(top / widthGutterBoxHeight) * widthGutterBoxHeight,
+                Math.round(top / withGutterBoxHeight) * withGutterBoxHeight,
               newLeft =
                 Math.round(left / withGutterBoxWidth) * withGutterBoxWidth;
             target.style.top = newTop + "px";
             target.style.left = newLeft + "px";
-            console.log({ currentTarget, target });
           }}
           onResizeStart={(e) => {
+            console.log({ e });
+            direction = e.direction;
             sw = e.clientX;
             aw = e.target.getBoundingClientRect().width - 2;
             aw = Math.floor((aw + 24) / 116); //  To get occupied boxes
-            console.log({ startBlockSize: aw, sw });
+            // console.log({ startBlockSize: aw, sw });
           }}
           onResize={({ target, width, height, drag }) => {
             const beforeTranslate = drag.beforeTranslate;
@@ -76,37 +74,19 @@ const MoveableWrapper = ({
               multiplier = getBlockMultiplier(diff, -1);
             }
             e.target.style.width = (aw + multiplier) * 116 - 26 + "px";
-            console.log({ ew, diffBlockSize: multiplier });
+            // console.log({ ew, diffBlockSize: multiplier });
           }}
           onRotate={({ target, left, top, beforeRotate }) => {
             frame.rotate = beforeRotate;
             target.style.top =
-              Math.round(top / widthGutterBoxHeight) * widthGutterBoxHeight +
+              Math.round(top / withGutterBoxHeight) * withGutterBoxHeight +
               "px";
             target.style.left =
               Math.round(left / withGutterBoxWidth) * withGutterBoxWidth + "px";
           }}
         ></Moveable>
       )}
-      <div
-        className={classNames("hightlighter", "wrapper")}
-        // onMouseOver={() =>
-        //   setTargetElement({
-        //     ref: childRefs[refName],
-        //     target: childRefs[refName].current,
-        //   })
-        // }
-        // onClick={() =>
-        //   setTargetElement({
-        //     ref: childRefs[refName],
-        //     target: childRefs[refName].current,
-        //   })
-        // }
-        // onBlur={() => setTargetElement({})}
-        style={{ ...styles }}
-      >
-        {children}
-      </div>
+      {children}
     </>
   );
 };

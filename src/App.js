@@ -4,11 +4,12 @@ import React, {
   useLayoutEffect,
   createElement,
 } from "react";
-import MoveableWrapper from "./MoveableWrapper";
+import MoveableWrapper from "./Components/MoveableWrapper";
 import "./App.css";
-import Grid from "./Grid";
-import "./Grid.css";
-import { useWindowSize } from "./common";
+import Grid from "./Components/Grid/Grid";
+import "./Components/Grid/Grid.css";
+import { useWindowSize } from "./Components/common";
+import ElementWrapper from "./Components/ElementWrapper";
 
 const App = () => {
   let showGrids = true,
@@ -31,11 +32,17 @@ const App = () => {
           "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
         tag: "p",
         styling: {
-          top: "80px",
+          left: "119px",
+          top: "65px",
+          height: "114px",
         },
         reponsive: {},
       },
     ];
+
+  let elementsRef = Array(elements.length).fill(createRef());
+
+  const [targetElem, setTargetElement] = useState();
   const containerRef = createRef();
   const [dimensions, setDimensions] = useState({});
   const [windowWidth] = useWindowSize();
@@ -51,7 +58,7 @@ const App = () => {
         height: height,
         withGutterBoxWidth: newWidth,
         boxWidth: newWidth - 24,
-        widthGutterBoxHeight: newHeight,
+        withGutterBoxHeight: newHeight,
         boxHeight: newHeight - 16,
       });
     }
@@ -60,28 +67,32 @@ const App = () => {
   const {
     withGutterBoxWidth,
     boxWidth,
-    widthGutterBoxHeight,
+    withGutterBoxHeight,
     boxHeight,
   } = dimensions;
-
   return (
     <div className="container">
       <section className="blue-section" ref={containerRef}>
+        <MoveableWrapper
+          withGutterBoxWidth={withGutterBoxWidth}
+          withGutterBoxHeight={withGutterBoxHeight}
+          targetElem={targetElem}
+        ></MoveableWrapper>
         {elements.map((elem, ind) => (
-          <MoveableWrapper
+          <ElementWrapper
             key={ind}
-            withGutterBoxWidth={withGutterBoxWidth}
-            widthGutterBoxHeight={widthGutterBoxHeight}
+            childRef={elementsRef[ind]}
+            setTargetElement={(target) => setTargetElement(target)}
             styles={{ ...elem.styling }}
           >
-            {createElement(elem.tag, null, elem.content)}
-          </MoveableWrapper>
+            {createElement(elem.tag, { index: ind }, elem.content)}
+          </ElementWrapper>
         ))}
         {showGrids && (
           <Grid
             withGutterBoxWidth={withGutterBoxWidth}
             boxWidth={boxWidth}
-            widthGutterBoxHeight={widthGutterBoxHeight}
+            withGutterBoxHeight={withGutterBoxHeight}
             boxHeight={boxHeight}
           ></Grid>
         )}
@@ -93,12 +104,12 @@ export default App;
 
 {
   /* <img ref={image} // absolute full height 
-              onMouseOver={()=> setTargetElement({class : 'image', ref : image }) }
-              onClick={()=> setTargetElement({class : 'image', ref : image }) }
-              className="image" 
-              left="150px"
-              width="150px"
-              src="/logo192.png"
-              alt="target"
-          /> */
+    onMouseOver={()=> setTargetElement({class : 'image', ref : image }) }
+    onClick={()=> setTargetElement({class : 'image', ref : image }) }
+    className="image" 
+    left="150px"
+    width="150px"
+    src="/logo192.png"
+    alt="target"
+  /> */
 }
