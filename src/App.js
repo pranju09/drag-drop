@@ -75,7 +75,9 @@ const App = () => {
       <section className="blue-section" ref={containerRef}>
         <MoveableWrapper
           withGutterBoxWidth={withGutterBoxWidth}
+          boxWidth={boxWidth}
           withGutterBoxHeight={withGutterBoxHeight}
+          boxHeight={boxHeight}
           targetElem={targetElem}
         ></MoveableWrapper>
         {elements.map((elem, ind) => (

@@ -8,22 +8,30 @@ const MoveableWrapper = ({
   children,
   styles,
   withGutterBoxWidth,
+  boxWidth,
   withGutterBoxHeight,
+  boxHeight,
 }) => {
-  let sw, ew, aw, direction;
+  let sw, ew, occupiedWidth, sh, eh, occupiedHeight, direction;
   const [frame] = React.useState({
     translate: [0, 0],
     rotate: 0,
   });
 
-  const getBlockMultiplier = (diff, dir) => {
-    const fStep = dir === 1 ? 46 + 24 : 46; // (w/2)+gw : w/2
+  const getBlockMultiplier = (diff = 0, dir, vertical = 0) => {
+    let fStep;
+    if (vertical) fStep = dir === 1 ? boxHeight / 2 + 16 : boxHeight / 2;
+    // (h/2)+gh : h/2
+    else fStep = dir === 1 ? boxWidth / 2 + 24 : boxWidth / 2; // (w/2)+gw : w/2
+    console.log({ fStep, diff });
     diff = Math.abs(diff);
     if (diff < fStep) return 0;
     diff = diff - fStep;
-    var pos = diff / 116;
+    let boxSize = vertical ? withGutterBoxHeight : withGutterBoxWidth;
+    var pos = diff / boxSize;
     return Math.ceil(pos) * dir;
   };
+
   return (
     <>
       {targetElem && (
@@ -49,12 +57,17 @@ const MoveableWrapper = ({
             target.style.left = newLeft + "px";
           }}
           onResizeStart={(e) => {
-            console.log({ e });
-            direction = e.direction;
             sw = e.clientX;
-            aw = e.target.getBoundingClientRect().width - 2;
-            aw = Math.floor((aw + 24) / 116); //  To get occupied boxes
-            // console.log({ startBlockSize: aw, sw });
+            sh = e.clientY;
+            occupiedWidth = e.target.getBoundingClientRect().width - 2;
+            occupiedWidth = Math.floor(
+              (occupiedWidth + 24) / withGutterBoxWidth
+            ); //  To get occupied boxes : width
+            occupiedHeight = e.target.getBoundingClientRect().height - 2;
+            occupiedHeight = Math.floor(
+              (occupiedHeight + 16) / withGutterBoxHeight
+            ); //  To get occupied boxes : height
+            // console.log({ startBlockSize: occupiedWidth, sw });
           }}
           onResize={({ target, width, height, drag }) => {
             const beforeTranslate = drag.beforeTranslate;
@@ -64,17 +77,31 @@ const MoveableWrapper = ({
             target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
           }}
           onResizeEnd={(e) => {
-            let multiplier;
+            let horizontalMultiplier, verticalMultiplier;
             ew = e.clientX;
-            const diff = ew - sw;
-            console.log({ ew, sw, diff });
-            if (diff > 0) {
-              multiplier = getBlockMultiplier(diff, 1);
+            eh = e.clientY;
+
+            const diffInWidth = ew - sw;
+            if (diffInWidth > 0) {
+              horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
             } else {
-              multiplier = getBlockMultiplier(diff, -1);
+              horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
             }
-            e.target.style.width = (aw + multiplier) * 116 - 26 + "px";
-            // console.log({ ew, diffBlockSize: multiplier });
+            e.target.style.width =
+              (occupiedWidth + horizontalMultiplier) * withGutterBoxWidth -
+              26 +
+              "px";
+
+            const diffInHeight = eh - sh;
+            if (diffInHeight > 0) {
+              verticalMultiplier = getBlockMultiplier(diffInHeight, 1, 1);
+            } else {
+              verticalMultiplier = getBlockMultiplier(diffInHeight, -1, 1);
+            }
+            e.target.style.height =
+              (occupiedHeight + verticalMultiplier) * withGutterBoxHeight -
+              18 +
+              "px";
           }}
           onRotate={({ target, left, top, beforeRotate }) => {
             frame.rotate = beforeRotate;
