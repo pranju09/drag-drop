@@ -12,6 +12,7 @@ const MoveableWrapper = ({
   withGutterBoxHeight,
   boxHeight,
 }) => {
+  console.log("comp mounted");
   const [dimensions, setDimensions] = useState({
     sw: 0,
     ew: 0,
@@ -77,7 +78,10 @@ const MoveableWrapper = ({
           onResizeStart={(e) => {
             sw = e.clientX;
             sh = e.clientY;
-            startLeft = e.target.getBoundingClientRect().left;
+            startLeft =
+              (e.target.getBoundingClientRect().left -
+                e.target.parentElement.getBoundingClientRect().left) /
+              withGutterBoxWidth;
             console.log({ startLeft });
             direction = e.direction;
             occupiedWidth = e.target.getBoundingClientRect().width - 2;
@@ -101,7 +105,7 @@ const MoveableWrapper = ({
             ew = e.clientX;
             eh = e.clientY;
 
-            let diffInWidth = ew - sw;
+            let diffInWidth = ew - sw; // resizeWidth = endPos - startPos
 
             if (direction && direction[0] > 0) {
               if (diffInWidth > 0) {
@@ -110,23 +114,35 @@ const MoveableWrapper = ({
                 horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
               }
             } else {
+              // console.log("left width : ", startLeft - ew);
               if (diffInWidth < 0) {
-                horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
-              } else {
                 horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
+              } else {
+                horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
               }
               let newMultiplier = Math.floor(startLeft / withGutterBoxWidth),
-                moveLeft;
+                moveLeft =
+                  (startLeft + horizontalMultiplier) * withGutterBoxWidth;
 
-              if (horizontalMultiplier > 0) {
-                moveLeft = withGutterBoxWidth * (newMultiplier - 1);
-                e.target.style.left = `${moveLeft}px`;
-                e.target.style.transform = ``;
-              } else {
-                moveLeft = withGutterBoxWidth * newMultiplier;
-                e.target.style.left = `${moveLeft}px`;
-                e.target.style.transform = ``;
-              }
+              // console.log({ horizontalMultiplier });
+
+              // if (horizontalMultiplier > 0) {
+              //   moveLeft = withGutterBoxWidth * (newMultiplier - 1);
+              //   e.target.style.left = `${moveLeft}px`;
+              //   e.target.style.transform = ``;
+              // } else {
+              //   moveLeft = withGutterBoxWidth * newMultiplier;
+              //   e.target.style.left = `${moveLeft}px`;
+              //   e.target.style.transform = ``;
+              // }
+              console.log({
+                startLeft,
+                moveLeft,
+                horizontalMultiplier,
+                ind: horizontalMultiplier * withGutterBoxWidth,
+              });
+              e.target.style.left = moveLeft - 24 + "px";
+              horizontalMultiplier = horizontalMultiplier * -1;
             }
 
             e.target.style.width =

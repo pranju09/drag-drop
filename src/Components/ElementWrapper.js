@@ -6,7 +6,6 @@ const ElementWrapper = ({ childRef, children, setTargetElement, styles }) => {
     <div
       ref={childRef}
       className={classNames("hightlighter")}
-      onMouseOver={() => setTargetElement(childRef)}
       onClick={() => setTargetElement(childRef)}
       style={{ ...styles }}
     >

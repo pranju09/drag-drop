@@ -3,6 +3,7 @@ import React, {
   createRef,
   useLayoutEffect,
   createElement,
+  useEffect,
 } from "react";
 import MoveableWrapper from "./Components/MoveableWrapper";
 import "./App.css";
@@ -70,6 +71,10 @@ const App = () => {
     withGutterBoxHeight,
     boxHeight,
   } = dimensions;
+
+  useEffect(() => {
+    console.log("Props updated", targetElem);
+  }, [targetElem]);
   return (
     <div className="container">
       <section className="blue-section" ref={containerRef}>
