@@ -12,7 +12,16 @@ const MoveableWrapper = ({
   withGutterBoxHeight,
   boxHeight,
 }) => {
-  let sw, ew, occupiedWidth, sh, eh, occupiedHeight, direction;
+  const [dimensions, setDimensions] = useState({
+    sw: 0,
+    ew: 0,
+    occupiedWidth: 0,
+    sh: 0,
+    eh: 0,
+    occupiedHeight: 0,
+    direction: 0,
+    startLeft: 0,
+  });
   const [frame] = React.useState({
     translate: [0, 0],
     rotate: 0,
@@ -23,7 +32,6 @@ const MoveableWrapper = ({
     if (vertical) fStep = dir === 1 ? boxHeight / 2 + 16 : boxHeight / 2;
     // (h/2)+gh : h/2
     else fStep = dir === 1 ? boxWidth / 2 + 24 : boxWidth / 2; // (w/2)+gw : w/2
-    console.log({ fStep, diff });
     diff = Math.abs(diff);
     if (diff < fStep) return 0;
     diff = diff - fStep;
@@ -32,6 +40,16 @@ const MoveableWrapper = ({
     return Math.ceil(pos) * dir;
   };
 
+  let {
+    sw,
+    ew,
+    occupiedWidth,
+    sh,
+    eh,
+    occupiedHeight,
+    direction,
+    startLeft,
+  } = dimensions;
   return (
     <>
       {targetElem && (
@@ -59,6 +77,9 @@ const MoveableWrapper = ({
           onResizeStart={(e) => {
             sw = e.clientX;
             sh = e.clientY;
+            startLeft = e.target.getBoundingClientRect().left;
+            console.log({ startLeft });
+            direction = e.direction;
             occupiedWidth = e.target.getBoundingClientRect().width - 2;
             occupiedWidth = Math.floor(
               (occupiedWidth + 24) / withGutterBoxWidth
@@ -67,26 +88,47 @@ const MoveableWrapper = ({
             occupiedHeight = Math.floor(
               (occupiedHeight + 16) / withGutterBoxHeight
             ); //  To get occupied boxes : height
-            // console.log({ startBlockSize: occupiedWidth, sw });
           }}
-          onResize={({ target, width, height, drag }) => {
-            const beforeTranslate = drag.beforeTranslate;
+          onResize={(e) => {
+            const beforeTranslate = e.drag.beforeTranslate;
             frame.translate = beforeTranslate;
-            target.style.width = `${width}px`;
-            target.style.height = `${height}px`;
-            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
+            e.target.style.width = `${e.width}px`;
+            e.target.style.height = `${e.height}px`;
+            e.target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
           }}
           onResizeEnd={(e) => {
             let horizontalMultiplier, verticalMultiplier;
             ew = e.clientX;
             eh = e.clientY;
 
-            const diffInWidth = ew - sw;
-            if (diffInWidth > 0) {
-              horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
+            let diffInWidth = ew - sw;
+
+            if (direction && direction[0] > 0) {
+              if (diffInWidth > 0) {
+                horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
+              } else {
+                horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
+              }
             } else {
-              horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
+              if (diffInWidth < 0) {
+                horizontalMultiplier = getBlockMultiplier(diffInWidth, 1);
+              } else {
+                horizontalMultiplier = getBlockMultiplier(diffInWidth, -1);
+              }
+              let newMultiplier = Math.floor(startLeft / withGutterBoxWidth),
+                moveLeft;
+
+              if (horizontalMultiplier > 0) {
+                moveLeft = withGutterBoxWidth * (newMultiplier - 1);
+                e.target.style.left = `${moveLeft}px`;
+                e.target.style.transform = ``;
+              } else {
+                moveLeft = withGutterBoxWidth * newMultiplier;
+                e.target.style.left = `${moveLeft}px`;
+                e.target.style.transform = ``;
+              }
             }
+
             e.target.style.width =
               (occupiedWidth + horizontalMultiplier) * withGutterBoxWidth -
               26 +

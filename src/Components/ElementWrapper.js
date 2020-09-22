@@ -14,4 +14,4 @@ const ElementWrapper = ({ childRef, children, setTargetElement, styles }) => {
     </div>
   );
 };
-export default ElementWrapper;
+export default React.memo(ElementWrapper);

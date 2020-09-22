@@ -32,7 +32,7 @@ const App = () => {
           "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
         tag: "p",
         styling: {
-          left: "119px",
+          left: "118px",
           top: "65px",
           height: "114px",
         },
