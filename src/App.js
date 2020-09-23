@@ -5,27 +5,27 @@ import React, {
   createElement,
   useEffect,
 } from "react";
-import MoveableWrapper from "./Components/MoveableWrapper";
+import MoveableWrapper from "./Components/Moveable/MoveableWrapper";
 import "./App.css";
 import Grid from "./Components/Grid/Grid";
 import "./Components/Grid/Grid.css";
-import { useWindowSize } from "./Components/common";
-import ElementWrapper from "./Components/ElementWrapper";
+import { useWindowSize } from "./Components/Common/main";
+import ElementWrapper from "./Components/Common/ElementWrapper";
 
 const App = () => {
   let showGrids = true,
     elements = [
-      {
-        id: "heading",
-        type: "text",
-        content: "Some content",
-        tag: "h1",
-        styling: {
-          top: "0px",
-          height: "50px",
-        },
-        reponsive: {},
-      },
+      // {
+      //   id: "heading",
+      //   type: "text",
+      //   content: "Some content",
+      //   tag: "h1",
+      //   styling: {
+      //     top: "0px",
+      //     height: "50px",
+      //   },
+      //   reponsive: {},
+      // },
       {
         id: "para",
         type: "text",
@@ -72,9 +72,6 @@ const App = () => {
     boxHeight,
   } = dimensions;
 
-  useEffect(() => {
-    console.log("Props updated", targetElem);
-  }, [targetElem]);
   return (
     <div className="container">
       <section className="blue-section" ref={containerRef}>
@@ -95,7 +92,7 @@ const App = () => {
             {createElement(elem.tag, { index: ind }, elem.content)}
           </ElementWrapper>
         ))}
-        {showGrids && (
+        {targetElem && (
           <Grid
             withGutterBoxWidth={withGutterBoxWidth}
             boxWidth={boxWidth}

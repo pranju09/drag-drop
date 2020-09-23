@@ -1,12 +1,15 @@
 import React, { useRef } from "react";
 import classNames from "classnames";
-import { setElementStyle } from "./common";
+import { setElementStyle } from "../Common/main";
 const ElementWrapper = ({ childRef, children, setTargetElement, styles }) => {
   return (
     <div
       ref={childRef}
       className={classNames("hightlighter")}
-      onClick={() => setTargetElement(childRef)}
+      onClick={(e) => {
+        e.stopPropagation();
+        setTargetElement(childRef);
+      }}
       style={{ ...styles }}
     >
       {children}
