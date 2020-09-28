@@ -81,7 +81,7 @@ const MoveableWrapper = ({
 
     direction = e.direction;
     occupiedWidth = e.target.getBoundingClientRect().width - 2;
-    occupiedWidth = Math.floor((occupiedWidth + 24) / withGutterBoxWidth); //  To get occupied boxes : width
+    occupiedWidth = Math.ceil((occupiedWidth + 24) / withGutterBoxWidth); //  To get occupied boxes : width
 
     occupiedHeight = e.target.getBoundingClientRect().height - 2;
     occupiedHeight = Math.floor((occupiedHeight + 16) / withGutterBoxHeight); //  To get occupied boxes : height
@@ -100,42 +100,51 @@ const MoveableWrapper = ({
     ew = e.clientX;
     eh = e.clientY;
 
-    // Horizontal Resize [1,0] [-1,0]
-    let resizeWidth = ew - sw;
-    horizontalMultiplier = getBlockMultiplier(
-      resizeWidth,
-      direction && direction[0],
-      boxWidth,
-      withGutterBoxWidth,
-      withGutterBoxWidth - boxWidth
-    );
-    // When resize to left
-    if (direction && direction[0] < 0) {
-      let moveLeft = (leftBoxCount - horizontalMultiplier) * withGutterBoxWidth;
-      e.target.style.left = moveLeft + "px";
-      e.target.style.transform = ``;
+    if (direction && direction[0]) {
+      // Horizontal Resize [1,0] [-1,0]
+      let resizeWidth = ew - sw;
+      horizontalMultiplier = getBlockMultiplier(
+        resizeWidth,
+        direction && direction[0],
+        boxWidth,
+        withGutterBoxWidth,
+        withGutterBoxWidth - boxWidth
+      );
+      // When resize to left
+      if (direction && direction[0] < 0) {
+        let moveLeft =
+          (leftBoxCount - horizontalMultiplier) * withGutterBoxWidth;
+        e.target.style.left = moveLeft + "px";
+        e.target.style.transform = ``;
+      }
+
+      e.target.style.width = getForcedWidth(
+        occupiedWidth,
+        horizontalMultiplier
+      );
     }
+    if (direction && direction[1]) {
+      // Vertical Resize
+      let resizeHeight = eh - sh;
+      verticalMultiplier = getBlockMultiplier(
+        resizeHeight,
+        direction && direction[1],
+        boxHeight,
+        withGutterBoxHeight,
+        withGutterBoxHeight - boxHeight
+      );
+      // When resize to top
+      if (direction && direction[1] < 0) {
+        let moveTop = (topBoxCount - verticalMultiplier) * withGutterBoxHeight;
+        e.target.style.top = moveTop + "px";
+        e.target.style.transform = ``;
+      }
 
-    e.target.style.width = getForcedWidth(occupiedWidth, horizontalMultiplier);
-
-    // Vertical Resize
-    let resizeHeight = eh - sh;
-
-    verticalMultiplier = getBlockMultiplier(
-      resizeHeight,
-      direction && direction[1],
-      boxHeight,
-      withGutterBoxHeight,
-      withGutterBoxHeight - boxHeight
-    );
-    // When resize to top
-    if (direction && direction[1] < 0) {
-      let moveTop = (topBoxCount - verticalMultiplier) * withGutterBoxHeight;
-      e.target.style.top = moveTop + "px";
-      e.target.style.transform = ``;
+      e.target.style.height = getForcedHeight(
+        occupiedHeight,
+        verticalMultiplier
+      );
     }
-
-    e.target.style.height = getForcedHeight(occupiedHeight, verticalMultiplier);
   };
 
   const handleRotate = (e) => {
@@ -145,8 +154,6 @@ const MoveableWrapper = ({
     e.target.style.left =
       Math.round(e.left / withGutterBoxWidth) * withGutterBoxWidth + "px";
   };
-  console.log({ showGrid });
-
   return (
     <>
       {targetElem && (
@@ -155,7 +162,6 @@ const MoveableWrapper = ({
           target={targetElem.current}
           draggable={true}
           resizable={true}
-          scalable={true}
           zoom={1}
           rotatable={true}
           rotationPosition={"top"}
@@ -164,20 +170,6 @@ const MoveableWrapper = ({
           onResize={handleResize}
           onResizeEnd={handleResizeEnd}
           onRotate={handleRotate}
-          onScaleStart={({ set, dragStart }) => {
-            set(frame.scale);
-            dragStart && dragStart.set(frame.translate);
-          }}
-          onScale={({ target, scale, drag }) => {
-            const beforeTranslate = drag.beforeTranslate;
-
-            frame.translate = beforeTranslate;
-            frame.scale = scale;
-            console.log({ scale, beforeTranslate });
-            target.style.transform =
-              `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)` +
-              ` scale(${scale[0]}, ${scale[1]})`;
-          }}
         ></Moveable>
       )}
       {/* {showGrid && (

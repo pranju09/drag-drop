@@ -11,37 +11,14 @@ import Grid from "./Components/Grid/Grid";
 import "./Components/Grid/Grid.css";
 import { useWindowSize } from "./Components/Common/main";
 import ElementWrapper from "./Components/Common/ElementWrapper";
+import Preview from "./Components/Preview/Preview";
+import { dummyData } from "./Utils/data";
+import { map, get } from "lodash";
 
 const App = () => {
-  let showGrids = true,
-    elements = [
-      // {
-      //   id: "heading",
-      //   type: "text",
-      //   content: "Some content",
-      //   tag: "h1",
-      //   styling: {
-      //     top: "0px",
-      //     height: "50px",
-      //   },
-      //   reponsive: {},
-      // },
-      {
-        id: "para",
-        type: "text",
-        content:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        tag: "p",
-        styling: {
-          left: "118px",
-          top: "65px",
-          height: "114px",
-        },
-        reponsive: {},
-      },
-    ];
+  let showGrids = true;
 
-  let elementsRef = Array(elements.length).fill(createRef());
+  let elementsRef = Array(dummyData.length).fill(createRef());
 
   const [targetElem, setTargetElement] = useState();
   const containerRef = createRef();
@@ -82,16 +59,30 @@ const App = () => {
           boxHeight={boxHeight}
           targetElem={targetElem}
         ></MoveableWrapper>
-        {elements.map((elem, ind) => (
-          <ElementWrapper
-            key={ind}
-            childRef={elementsRef[ind]}
-            setTargetElement={(target) => setTargetElement(target)}
-            styles={{ ...elem.styling }}
-          >
-            {createElement(elem.tag, { index: ind }, elem.content)}
-          </ElementWrapper>
-        ))}
+        {map(dummyData, (eachElement, ind) => {
+          console.log({
+            ...get(eachElement, `styling`),
+          });
+          return (
+            <ElementWrapper
+              childRef={elementsRef[ind]}
+              setTargetElement={(target) => setTargetElement(target)}
+              styles={{
+                ...get(eachElement, `styling`),
+              }}
+            >
+              {React.createElement(
+                get(eachElement, `tag`, "h1"),
+                {
+                  ...(get(eachElement, `src`) && {
+                    src: get(eachElement, `src`),
+                  }),
+                },
+                get(eachElement, `content`)
+              )}
+            </ElementWrapper>
+          );
+        })}
         {targetElem && (
           <Grid
             withGutterBoxWidth={withGutterBoxWidth}
@@ -101,6 +92,8 @@ const App = () => {
           ></Grid>
         )}
       </section>
+      <h2>Show Output : </h2>
+      <Preview />
     </div>
   );
 };
